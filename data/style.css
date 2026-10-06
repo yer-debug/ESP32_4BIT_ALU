@@ -1,0 +1,864 @@
+/* ============================================================
+   4-BIT ALU WEB INTERFACE
+   ESP32 + Physical ALU
+   ============================================================ */
+
+
+/* ============================================================
+   COLOR SYSTEM
+   ============================================================ */
+
+:root {
+    --pcb: #123c2e;
+    --pcb-dark: #0a241b;
+    --panel: #0e2f24;
+    --panel-light: #123a2d;
+
+    --silk: #e8efe4;
+    --silk-dim: #9db5a6;
+
+    --copper: #d49a5c;
+    --copper-light: #e6b77e;
+
+    --led-on: #ff5a45;
+    --led-off: #3b2a26;
+
+    --ok: #8fe3a1;
+    --bad: #ff8d7a;
+
+    --border: #2f5d4a;
+
+    color-scheme: dark;
+}
+
+
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+
+html {
+    min-height: 100%;
+}
+
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--pcb-dark),
+            var(--pcb)
+        );
+
+    color: var(--silk);
+
+    font-family:
+        "Segoe UI",
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   MAIN CONTAINER
+   ============================================================ */
+
+.container {
+    width: 100%;
+    max-width: 700px;
+
+    margin: 0 auto;
+
+    padding:
+        2rem
+        1rem
+        4rem;
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin-bottom: 1.5rem;
+}
+
+
+.eyebrow {
+    margin: 0 0 0.25rem;
+
+    color: var(--copper);
+
+    font-size: 0.7rem;
+    font-weight: 700;
+
+    letter-spacing: 0.15em;
+}
+
+
+h1 {
+    margin: 0;
+
+    font-size: 2rem;
+    line-height: 1.1;
+
+    font-weight: 700;
+}
+
+
+.subtitle {
+    margin: 0.35rem 0 0;
+
+    color: var(--silk-dim);
+
+    font-size: 0.9rem;
+}
+
+
+.link {
+    flex-shrink: 0;
+
+    padding: 0.35rem 0.7rem;
+
+    border: 1px solid var(--border);
+    border-radius: 999px;
+
+    color: var(--silk-dim);
+
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+
+.link.up {
+    color: var(--ok);
+    border-color: var(--ok);
+}
+
+
+.link.down {
+    color: var(--bad);
+    border-color: var(--bad);
+}
+
+
+/* ============================================================
+   PANELS
+   ============================================================ */
+
+.panel {
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel-light),
+            var(--panel)
+        );
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 1.5rem;
+
+    margin-bottom: 1rem;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+.panel::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0.7rem;
+    right: 0.7rem;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--copper);
+
+    box-shadow:
+        10px 0 0 var(--copper),
+        20px 0 0 var(--copper);
+}
+
+
+h2 {
+    margin: 0 0 1.25rem;
+
+    color: var(--silk);
+
+    font-size: 1rem;
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+}
+
+
+/* ============================================================
+   INPUT AREA
+   ============================================================ */
+
+.inputs {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 1rem;
+
+    margin-bottom: 1.25rem;
+}
+
+
+label {
+    display: block;
+
+    font-weight: 600;
+}
+
+
+.label-title {
+    display: inline-block;
+
+    font-size: 0.95rem;
+}
+
+
+.hint {
+    margin-left: 0.35rem;
+
+    color: var(--silk-dim);
+
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+
+/* ============================================================
+   INPUTS / SELECT
+   ============================================================ */
+
+input,
+select {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 0.45rem;
+
+    padding: 0.7rem 0.75rem;
+
+    font-family: inherit;
+    font-size: 1.05rem;
+
+    color: var(--silk);
+
+    background: var(--pcb-dark);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 6px;
+
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+}
+
+
+input:hover,
+select:hover {
+    border-color: var(--copper);
+}
+
+
+input:focus,
+select:focus {
+    border-color: var(--copper);
+
+    box-shadow:
+        0 0 0 2px
+        rgba(212, 154, 92, 0.15);
+
+    outline: none;
+}
+
+
+/* Remove number input arrows where supported */
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.5;
+}
+
+
+/* ============================================================
+   BINARY DISPLAY
+   ============================================================ */
+
+.bin {
+    display: block;
+
+    margin-top: 0.4rem;
+
+    color: var(--copper);
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+
+    font-size: 0.9rem;
+
+    letter-spacing: 0.18em;
+
+    text-align: left;
+}
+
+
+.wide {
+    margin-bottom: 1.5rem;
+}
+
+
+/* ============================================================
+   EXECUTE BUTTON
+   ============================================================ */
+
+button {
+    width: 100%;
+
+    padding: 0.85rem 1rem;
+
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    color: #1b1208;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--copper-light),
+            var(--copper)
+        );
+
+    border: 0;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.1s,
+        filter 0.15s,
+        box-shadow 0.15s;
+}
+
+
+button:hover {
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 4px 15px
+        rgba(212, 154, 92, 0.2);
+}
+
+
+button:active {
+    transform: translateY(1px);
+}
+
+
+button:disabled {
+    opacity: 0.55;
+
+    cursor: progress;
+
+    box-shadow: none;
+}
+
+
+button:focus-visible {
+    outline: 2px solid var(--copper-light);
+
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.error {
+    margin: 0.9rem 0 0;
+
+    padding: 0.7rem 0.8rem;
+
+    color: var(--bad);
+
+    background: rgba(255, 141, 122, 0.08);
+
+    border-left:
+        3px solid
+        var(--bad);
+
+    border-radius: 4px;
+
+    font-size: 0.85rem;
+}
+
+
+/* ============================================================
+   RESULT SECTION
+   ============================================================ */
+
+.result {
+    overflow: hidden;
+}
+
+
+.led-section {
+    margin-bottom: 1.5rem;
+}
+
+
+.section-label {
+    margin: 0 0 0.7rem;
+
+    color: var(--silk-dim);
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+
+    font-size: 0.75rem;
+
+    letter-spacing: 0.08em;
+}
+
+
+/* ============================================================
+   LED ARRAY
+   ============================================================ */
+
+.leds {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 1.5rem;
+
+    padding: 1.25rem;
+
+    background: var(--pcb-dark);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 8px;
+}
+
+
+.led-bit {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 0.45rem;
+}
+
+
+.led-bit span {
+    color: var(--silk-dim);
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+
+    font-size: 0.7rem;
+}
+
+
+.leds i {
+    display: block;
+
+    width: 1.65rem;
+    height: 1.65rem;
+
+    border-radius: 50%;
+
+    background: var(--led-off);
+
+    border:
+        2px solid
+        #5a403a;
+
+    box-shadow:
+        inset 0 2px 4px
+        rgba(0, 0, 0, 0.35);
+
+    transition:
+        background 0.15s,
+        box-shadow 0.15s,
+        transform 0.15s;
+}
+
+
+.leds i.on {
+    background: var(--led-on);
+
+    border-color: #ff8a7a;
+
+    box-shadow:
+        0 0 8px
+        rgba(255, 90, 69, 0.5),
+
+        0 0 18px
+        rgba(255, 90, 69, 0.3),
+
+        inset 0 1px 3px
+        rgba(255, 255, 255, 0.25);
+
+    transform: scale(1.05);
+}
+
+
+/* ============================================================
+   NUMERICAL RESULT
+   ============================================================ */
+
+.result-values {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 0;
+
+    margin: 0 0 1.25rem;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 7px;
+
+    overflow: hidden;
+}
+
+
+.result-values > div {
+    padding: 0.8rem;
+
+    text-align: center;
+
+    background: rgba(0, 0, 0, 0.08);
+
+    border-right:
+        1px solid
+        var(--border);
+}
+
+
+.result-values > div:last-child {
+    border-right: 0;
+}
+
+
+dt {
+    color: var(--silk-dim);
+
+    font-size: 0.7rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.08em;
+}
+
+
+dd {
+    margin: 0.25rem 0 0;
+
+    color: var(--silk);
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+
+    font-size: 1.5rem;
+
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   HARDWARE STATUS
+   ============================================================ */
+
+.hw {
+    margin: 0;
+
+    padding: 0.85rem;
+
+    color: var(--silk-dim);
+
+    background: var(--pcb-dark);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 6px;
+
+    font-size: 0.85rem;
+
+    line-height: 1.5;
+}
+
+
+.hw.ok {
+    color: var(--ok);
+
+    border-color:
+        rgba(143, 227, 161, 0.45);
+
+    background:
+        rgba(143, 227, 161, 0.06);
+}
+
+
+.hw.bad {
+    color: var(--bad);
+
+    border-color:
+        rgba(255, 141, 122, 0.45);
+
+    background:
+        rgba(255, 141, 122, 0.06);
+}
+
+
+/* ============================================================
+   SYSTEM INFORMATION
+   ============================================================ */
+
+.system-info {
+    padding-bottom: 1.25rem;
+}
+
+
+.architecture {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 7px;
+
+    overflow: hidden;
+}
+
+
+.architecture > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.2rem;
+
+    padding: 0.8rem;
+
+    border-right:
+        1px solid
+        var(--border);
+
+    background:
+        rgba(0, 0, 0, 0.08);
+}
+
+
+.architecture > div:last-child {
+    border-right: 0;
+}
+
+
+.architecture span {
+    color: var(--silk-dim);
+
+    font-size: 0.7rem;
+}
+
+
+.architecture strong {
+    color: var(--silk);
+
+    font-size: 0.8rem;
+}
+
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--copper-light);
+
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .container {
+        padding:
+            1.25rem
+            0.8rem
+            3rem;
+    }
+
+
+    .header {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+
+    h1 {
+        font-size: 1.7rem;
+    }
+
+
+    .inputs {
+        grid-template-columns: 1fr;
+    }
+
+
+    .leds {
+        gap: 1rem;
+    }
+
+
+    .architecture {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .architecture > div:nth-child(2) {
+        border-right: 0;
+    }
+
+
+    .architecture > div:nth-child(-n + 2) {
+        border-bottom:
+            1px solid
+            var(--border);
+    }
+}
+
+
+@media (max-width: 380px) {
+
+    .panel {
+        padding: 1rem;
+    }
+
+
+    .leds {
+        gap: 0.65rem;
+
+        padding: 1rem;
+    }
+
+
+    .leds i {
+        width: 1.4rem;
+        height: 1.4rem;
+    }
+
+
+    .result-values {
+        grid-template-columns: 1fr;
+    }
+
+
+    .result-values > div {
+        border-right: 0;
+
+        border-bottom:
+            1px solid
+            var(--border);
+    }
+
+
+    .result-values > div:last-child {
+        border-bottom: 0;
+    }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}

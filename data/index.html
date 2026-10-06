@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="ESP32 controlled 4-bit physical ALU"
+    >
+
+    <title>ESP32 4-Bit ALU</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+    <main class="container">
+
+        <!-- ==================================================
+             HEADER
+        =================================================== -->
+
+        <header class="header">
+
+            <div>
+                <p class="eyebrow">
+                    EMBEDDED DIGITAL SYSTEM
+                </p>
+
+                <h1>
+                    4-Bit ALU
+                </h1>
+
+                <p class="subtitle">
+                    ESP32 Physical ALU Controller
+                </p>
+            </div>
+
+            <div
+                id="link"
+                class="link"
+            >
+                Checking ESP32...
+            </div>
+
+        </header>
+
+
+        <!-- ==================================================
+             INPUTS
+        =================================================== -->
+
+        <section
+            class="panel"
+            aria-label="ALU inputs"
+        >
+
+            <h2>
+                Inputs
+            </h2>
+
+
+            <div class="inputs">
+
+                <!-- A -->
+
+                <label for="a">
+
+                    <span class="label-title">
+                        A
+                    </span>
+
+                    <span class="hint">
+                        4-bit / 0-15
+                    </span>
+
+                    <input
+                        id="a"
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        max="15"
+                        step="1"
+                        value="5"
+                    >
+
+                    <output
+                        id="a-bin"
+                        class="bin"
+                    >
+                        0101
+                    </output>
+
+                </label>
+
+
+                <!-- B -->
+
+                <label for="b">
+
+                    <span class="label-title">
+                        B
+                    </span>
+
+                    <span class="hint">
+                        4-bit / 0-15
+                    </span>
+
+                    <input
+                        id="b"
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        max="15"
+                        step="1"
+                        value="3"
+                    >
+
+                    <output
+                        id="b-bin"
+                        class="bin"
+                    >
+                        0011
+                    </output>
+
+                </label>
+
+            </div>
+
+
+            <!-- ==================================================
+                 OPERATION
+            =================================================== -->
+
+            <label
+                for="op"
+                class="wide"
+            >
+
+                <span class="label-title">
+                    Operation
+                </span>
+
+                <select id="op">
+                </select>
+
+                <output
+                    id="op-bin"
+                    class="bin"
+                >
+                    0010
+                </output>
+
+            </label>
+
+
+            <!-- ==================================================
+                 EXECUTE
+            =================================================== -->
+
+            <button
+                id="run"
+                type="button"
+            >
+                Execute ALU
+            </button>
+
+
+            <!-- Error -->
+
+            <p
+                id="error"
+                class="error"
+                role="alert"
+                hidden
+            ></p>
+
+        </section>
+
+
+        <!-- ==================================================
+             RESULT
+        =================================================== -->
+
+        <section
+            class="panel result"
+            aria-label="ALU result"
+        >
+
+            <h2>
+                ALU Result
+            </h2>
+
+
+            <!-- LED representation -->
+
+            <div
+                class="led-section"
+                aria-label="4-bit result LEDs"
+            >
+
+                <p class="section-label">
+                    F[3:0]
+                </p>
+
+                <div
+                    id="leds"
+                    class="leds"
+                    aria-hidden="true"
+                >
+
+                    <div class="led-bit">
+                        <i></i>
+                        <span>F3</span>
+                    </div>
+
+                    <div class="led-bit">
+                        <i></i>
+                        <span>F2</span>
+                    </div>
+
+                    <div class="led-bit">
+                        <i></i>
+                        <span>F1</span>
+                    </div>
+
+                    <div class="led-bit">
+                        <i></i>
+                        <span>F0</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Numerical result -->
+
+            <dl class="result-values">
+
+                <div>
+                    <dt>
+                        Decimal
+                    </dt>
+
+                    <dd id="r-dec">
+                        –
+                    </dd>
+                </div>
+
+
+                <div>
+                    <dt>
+                        Binary
+                    </dt>
+
+                    <dd id="r-bin">
+                        ----
+                    </dd>
+                </div>
+
+
+                <div>
+                    <dt>
+                        Hex
+                    </dt>
+
+                    <dd id="r-hex">
+                        –
+                    </dd>
+                </div>
+
+            </dl>
+
+
+            <!-- Hardware status -->
+
+            <div
+                id="hw"
+                class="hw"
+            >
+                Press Execute to send the operation
+                to the physical ALU.
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             SYSTEM INFORMATION
+        =================================================== -->
+
+        <section
+            class="panel system-info"
+            aria-label="System information"
+        >
+
+            <h2>
+                System
+            </h2>
+
+            <div class="architecture">
+
+                <div>
+                    <span>Controller</span>
+                    <strong>ESP32</strong>
+                </div>
+
+                <div>
+                    <span>ALU width</span>
+                    <strong>4-bit</strong>
+                </div>
+
+                <div>
+                    <span>Operations</span>
+                    <strong>13</strong>
+                </div>
+
+                <div>
+                    <span>Interface</span>
+                    <strong>Wi-Fi</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- JavaScript -->
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
